@@ -1,0 +1,3 @@
+inputFileName: "data/interactions.csv"
+outputFileName: "data/outputInteractions.csv"
+numberOfRecordsToRead: 10
