@@ -12,6 +12,7 @@ public class InteractionRuleSpeechToTextImp implements InteractionRule{
     private Faker faker;
     @Override
     public void applyRule(CallEvent callEvent, OutputEvent outputEvent) {
-        outputEvent.setSpeechText(faker.backToTheFuture().quote());
+        outputEvent.setSpeechText(faker.backToTheFuture().quote().replace(',','$'));
+
     }
 }

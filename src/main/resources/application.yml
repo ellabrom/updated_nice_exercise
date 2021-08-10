@@ -1,3 +1,4 @@
 inputFileName: "data/interactions.csv"
-outputFileName: "data/outputInteractions.csv"
+outputFileName: "data/outputInteractions"
 numberOfRecordsToRead: 10
+delimiter: ","

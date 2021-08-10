@@ -1,35 +1,53 @@
 package com.nice.file_processor.services.file_writer;
 
-import com.nice.file_processor.models.EmotionEnum;
-import com.nice.file_processor.models.EvenOddEnum;
 import com.nice.file_processor.models.OutputEvent;
-import com.opencsv.CSVWriter;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
+import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FileWriterInterfaceCsvImp implements FileWriterInterface {
     @Value("${outputFileName}")
-    String outputFileName;
+    String outputFileNamePrefix;
+    @Value("${delimiter}")
+    String delimiter;
     @Override
     @SneakyThrows
-    public void writeFile(List<OutputEvent> outputEventList) {
-        File file = new File(outputFileName);
-        FileWriter outputfile = new FileWriter(file);
-        CSVWriter csvWriter= new CSVWriter(outputfile);
-        List<String[]> data = new ArrayList<String[]>();
-        data.add(new String[] { "segmentId", "emotion", "speechText", "evenOrOdd" });
-        outputEventList
-                .forEach(outputEvent->data.add((new String[] { outputEvent.getSegmentId().toString(), outputEvent.getEmotion().toString(),
-                        outputEvent.getSpeechText(), outputEvent.getEvenOrOdd().toString() })));
-        csvWriter.writeAll(data);
-        csvWriter.close();
+    public void writeFile(List<OutputEvent> outputEventList, BufferedWriter writer) {
+        List<String> outputString = outputEventList.stream().map(event -> event.getSegmentId().toString() + delimiter + event.getEmotion().toString() + delimiter + event.getSpeechText()
+                + delimiter + event.getEvenOrOdd().toString()).collect(Collectors.toList() );
+        for (String str : outputString) {
+            writer.write(str);
+            writer.newLine();
+        }
+        writer.flush();
+    }
 
+    @Override
+    @SneakyThrows
+    public void writeHeader(BufferedWriter writer) {
+        writer.write("segmentId,emotion,speechText,evenOrOdd");
+        writer.newLine();
+        writer.flush();
+    }
+
+    @Override
+    @SneakyThrows
+    public BufferedWriter openFile() {
+        String outputFileName = outputFileNamePrefix+System.currentTimeMillis()+".csv";
+        return new BufferedWriter(new FileWriter(outputFileName, true));
+    }
+
+    @Override
+    @SneakyThrows
+    public void closeFile(BufferedWriter writer) {
+        if (writer!=null) {
+            writer.close();
+        }
     }
 }
